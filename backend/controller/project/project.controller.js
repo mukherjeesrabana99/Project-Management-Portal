@@ -7,7 +7,7 @@ exports.createProject = async (req, res) => {
 };
 
 exports.getProjects = async (req, res) => {
-  const data = await service.getProjects();
+  const data = await service.getProjects(req.user);
   res.json(data);
 };
 

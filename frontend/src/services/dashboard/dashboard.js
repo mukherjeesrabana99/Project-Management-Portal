@@ -3,14 +3,10 @@ import api from "../../api/axios";
 
 export const getStats = async () => {
   try {
-    const response = await api.get(
-      `/api/dashboard/stats`,
-     
-    );
-
+    const response = await api.get("/api/dashboard/admin");
     return response.data;
   } catch (error) {
-    console.error("Error during fetching stats:", error);
+    console.error("Error fetching dashboard stats:", error);
     throw error;
   }
 };

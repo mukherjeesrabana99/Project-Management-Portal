@@ -68,17 +68,14 @@ const Header = ({ handleLeftDrawerToggle }) => {
       {/* notification & profile */}
       {/* <NotificationSection /> */}
       {/* <ProfileSection /> */}
-      {JSON.parse(sessionStorage.getItem('loggedUser')) ? (
+      {localStorage.getItem('accessToken') ? (
         <>
-          {/* <Typography color="crimson">Welcome {JSON.parse(sessionStorage.getItem('loggedUser'))}</Typography> */}
           <Button
             color="secondary"
             onClick={(e) => {
               if (confirm('Do you want to Logout?')) {
-                // sessionStorage.removeItem('loggedUser');
-                // sessionStorage.removeItem('token');
-                // sessionStorage.removeItem('loggedRoleId');
                 sessionStorage.clear();
+                localStorage.clear();
                 Cookies.remove('accessToken');
                 Cookies.remove('accessTokenTime');
                 Cookies.remove('refreshToken');
@@ -94,8 +91,6 @@ const Header = ({ handleLeftDrawerToggle }) => {
           <Button color="secondary" onClick={(e) => navigate('/login')}>
             LOGIN
           </Button>
-
-          
         </>
       )}
 

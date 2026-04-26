@@ -3,11 +3,11 @@ const db = require("../../config/database/db_connection");
 
 exports.createProject = (data) => {
   return db.promise().query(
-    `INSERT INTO projects 
+    `INSERT INTO projects
     (title, description, client_id, status, start_date, end_date)
     VALUES (?, ?, ?, ?, ?, ?)`,
     [
-      data.title,
+      data.name,
       data.description,
       data.client_id,
       "planned",
@@ -70,15 +70,27 @@ exports.insertStatusLog = (log) => {
   );
 };
 
-exports.getProjectsWithClientAndAssignedusers=()=>{
+exports.getProjectsWithClientAndAssignedusers = () => {
   return db.promise().query(`
     SELECT p.*, c.company_name as client_name, 
-    GROUP_CONCAT(u.name) as assigned_users
+    COALESCE(JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email, 'role_id', u.role_id)), JSON_ARRAY()) as assigned_users
     FROM projects p
     JOIN clients c ON p.client_id = c.id
     LEFT JOIN project_users pu ON p.id = pu.project_id
     LEFT JOIN users u ON pu.user_id = u.id
     GROUP BY p.id
   `);
-  
-}
+};
+
+exports.getProjectsByClientId = (clientId) => {
+  return db.promise().query(`
+    SELECT p.*, c.company_name as client_name,
+    COALESCE(JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email, 'role_id', u.role_id)), JSON_ARRAY()) as assigned_users
+    FROM projects p
+    JOIN clients c ON p.client_id = c.id
+    LEFT JOIN project_users pu ON p.id = pu.project_id
+    LEFT JOIN users u ON pu.user_id = u.id
+    WHERE p.client_id = ?
+    GROUP BY p.id
+  `, [clientId]);
+};
