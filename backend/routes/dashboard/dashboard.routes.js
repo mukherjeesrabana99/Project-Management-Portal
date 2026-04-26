@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
-const controller = require("../controllers/dashboard/dashboard.controller");
-const { authenticate } = require("../middleware/auth");
-const { authorize } = require("../middleware/rbac");
+const controller = require("../../controller/dashboard/dashboard.controller");
+const { authenticateToken } = require("../../middleware/auth");
+const { authorize } = require("../../middleware/rbac");
 
-router.use(authenticate);
+router.use(authenticateToken);
 
 router.get(
   "/admin",
-  authenticate,
-  authorize("admin"),
+  authenticateToken,
+  authorize("Admin"),
   controller.getAdminDashboard,
 );
 

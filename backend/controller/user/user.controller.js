@@ -1,8 +1,8 @@
 
-const userService = require("../services/user/user.service");
+const userService = require("../../service/user/user.service");
 
 exports.createUser = async (req, res) => {
-  const result = await userService.createUser(req.body);
+  const result = await userService.createUser(req.body, req.user.id);
   res.json({ success: true, data: result });
 };
 
@@ -12,11 +12,11 @@ exports.getUsers = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  await userService.updateUser(req.params.id, req.body);
+  await userService.updateUser(req.params.id, req.body, req.user.id);
   res.json({ success: true });
 };
 
 exports.deleteUser = async (req, res) => {
-  await userService.deleteUser(req.params.id);
+  await userService.deleteUser(req.params.id, req.user.id);
   res.json({ success: true });
 };

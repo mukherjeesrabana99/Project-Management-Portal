@@ -1,5 +1,5 @@
 
-const repo = require("../repositories/dashboard.repository");
+const repo = require("../../repository/dashboard/dashboard.repository");
 
 exports.getAdminDashboard = async () => {
   const stats = await repo.getAdminStats();

@@ -26,7 +26,7 @@ class JWTService {
         },
       );
       winston.info(
-        `Access token generated for user: ${payload.id || payload.email}`,
+        `Access token generated for user: ${payload.id || payload.email || payload.role_id}`,
       );
       return token;
     } catch (error) {
@@ -50,7 +50,7 @@ class JWTService {
         },
       );
       winston.info(
-        `Refresh token generated for user: ${payload.id || payload.email}`,
+        `Refresh token generated for user: ${payload.id || payload.email || payload.role_id}`,
       );
       return token;
     } catch (error) {
@@ -73,7 +73,7 @@ class JWTService {
       }
 
       winston.info(
-        `Token verified successfully for user: ${decoded.id || decoded.email}`,
+        `Token verified successfully for user: ${decoded.id || decoded.email || decoded.role_id}`,
       );
       return decoded;
     } catch (error) {
