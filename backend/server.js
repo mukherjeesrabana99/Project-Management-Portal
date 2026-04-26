@@ -7,6 +7,8 @@ const rateLimit = require("express-rate-limit");
 const db_connection = require("./config/database/db_connection");
 const configureWinston = require("./config/logger/winston_config");
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user/user.routes");
+const dashboardRoutes = require("./routes/dashboard/dashboard.routes");
 const { errorHandler } = require("./config/customerror");
 
 dotenv.config();
@@ -64,6 +66,8 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use((req, res) => {
   winston.warn(`404 - Route not found: ${req.method} ${req.originalUrl}`, {
