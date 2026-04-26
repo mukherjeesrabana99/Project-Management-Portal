@@ -25,19 +25,35 @@ exports.createProject = async (data, userId) => {
   return result;
 };
 
-exports.getProjects = async () => {
-  const now = Date.now();
-  const cached = cache.get('projects');
+exports.getProjects = async (user) => {
+  const parseAssignedUsers = (projects) => {
+    projects.forEach((project) => {
+      if (project.assigned_users && typeof project.assigned_users === "string") {
+        try {
+          project.assigned_users = JSON.parse(project.assigned_users);
+        } catch (error) {
+          project.assigned_users = [];
+        }
+      }
+    });
+  };
 
-  if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+  if (user?.role_name === "Client" && user.client_id) {
+    const [projects] = await repo.getProjectsByClientId(user.client_id);
+    parseAssignedUsers(projects);
+    return projects;
+  }
+
+  const now = Date.now();
+  const cached = cache.get("projects");
+
+  if (cached && now - cached.timestamp < CACHE_DURATION) {
     return cached.data;
   }
 
   const [projects] = await repo.getProjectsWithClientAndAssignedusers();
- 
-  
-
-  cache.set('projects', { data: projects, timestamp: now });
+  parseAssignedUsers(projects);
+  cache.set("projects", { data: projects, timestamp: now });
 
   return projects;
 };

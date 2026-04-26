@@ -10,8 +10,9 @@ exports.createClient = async (data, createdBy) => {
 };
 
 exports.getClients = async () => {
-  return await repo.getClients();
-}
+  const [clients] = await repo.getClients();
+  return clients;
+};
 
 exports.updateClient = async (id, data, updatedBy) => {
   await repo.updateClient(id, data);

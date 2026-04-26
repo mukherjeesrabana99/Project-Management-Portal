@@ -23,9 +23,16 @@ import {
   MenuItem,
   Stack,
   IconButton,
+  Fab,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
-import { Edit } from "@mui/icons-material";
-import { getClientProjects, updateClientProjectStatus } from "../../../services/client/client";
+import { Edit, Add as AddIcon } from "@mui/icons-material";
+import { getClientProjects, updateClientProjectStatus, createProject } from "../../../services/client/client";
+import { getAllClients } from "../../../services/admin/client";
+import { getAllUsers } from "../../../services/admin/user";
+
 
 const statusColors = {
   planned: "#6366f1",
@@ -41,33 +48,103 @@ const statusOptions = [
   { value: "on_hold", label: "On Hold" },
 ];
 
-export const Projects = () => {
+export const ProjectManagement = () => {
   const queryClient = useQueryClient();
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["client-projects"],
     queryFn: getClientProjects
   });
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [statusValue, setStatusValue] = useState("");
-  const [notes, setNotes] = useState("");
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients"],
+    queryFn: getAllClients
+  });
 
-  const mutation = useMutation({
-    mutationFn: (payload) => updateClientProjectStatus(payload.projectId, payload.status),
+  const { data: users = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: getAllUsers
+  });
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    client_id: "",
+    start_date: "",
+    end_date: "",
+    status: "planned",
+    assignments: []
+  });
+
+
+
+  const createMutation = useMutation({
+    mutationFn: createProject,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["client-projects"] });
-      setSelectedProject(null);
+      handleClose();
     },
   });
 
-  const openEdit = (project) => {
-    setSelectedProject(project);
-    setStatusValue(project.status);
-    setNotes(project.description || "");
+  const updateMutation = useMutation({
+    mutationFn: (payload) =>
+      updateClientProjectStatus(payload.projectId, payload.status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["client-projects"] });
+      handleClose();
+    },
+  });
+
+  const handleOpenCreate = () => {
+    setIsEditMode(false);
+    setFormData({
+      title: "",
+      status: "planned",
+      description: "",
+      start_date: "",
+      end_date: "",
+    });
+    setOpenDialog(true);
   };
 
-  const handleSave = async () => {
-    if (!selectedProject) return;
-    await mutation.mutateAsync({ projectId: selectedProject.id, status: statusValue });
+  const handleOpenEdit = (project) => {
+    setFormData({
+      title: project.title,
+      description: project.description || "",
+      client_id: project.client_id,
+      start_date: project.start_date || "",
+      end_date: project.end_date || "",
+      status: project.status,
+      assignments: project.assigned_users?.map((u) => ({
+        user_id: u.id
+      })) || []
+    });
+    setIsEditMode(true);
+    setOpenDialog(true);
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+  };
+
+
+  const handleSave = () => {
+    if (isEditMode) {
+      updateMutation.mutate({
+        projectId: formData.id,
+        status: formData.status,
+      });
+    } else {
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        client_id: formData.client_id,
+        start_date: formData.start_date,
+        end_date: formData.end_date,
+        assignments: formData.assignments
+      };
+      createMutation.mutate(payload);
+    }
   };
 
   const projectSummary = useMemo(() => {
@@ -91,7 +168,10 @@ export const Projects = () => {
           <Typography color="text.secondary">
             View your assigned projects and update the current status for each item.
           </Typography>
+          
         </Grid>
+
+       
 
         <Grid item xs={12} md={4}>
           <Stack spacing={2}>
@@ -179,7 +259,7 @@ export const Projects = () => {
                         <TableCell>{project.client_name}</TableCell>
                         <TableCell>{project.assigned_users?.length ? project.assigned_users.map((user) => user.name).join(", ") : "None"}</TableCell>
                         <TableCell align="right">
-                          <IconButton color="primary" onClick={() => openEdit(project)}>
+                          <IconButton color="primary" onClick={() => handleOpenEdit(project)}>
                             <Edit />
                           </IconButton>
                         </TableCell>
@@ -193,16 +273,29 @@ export const Projects = () => {
         </Grid>
       </Grid>
 
-      <Dialog open={Boolean(selectedProject)} fullWidth maxWidth="sm" onClose={() => setSelectedProject(null)}>
-        <DialogTitle>Update Project Status</DialogTitle>
+      <Dialog open={openDialog} fullWidth maxWidth="sm" onClose={handleClose}>
+        <DialogTitle>
+          {isEditMode ? "Update Project" : "Create Project"}
+        </DialogTitle>
+
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField label="Project Title" value={selectedProject?.title || ""} fullWidth disabled />
             <TextField
-              label="Current Status"
+              label="Project Title"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              fullWidth
+            />
+
+            <TextField
+              label="Status"
               select
-              value={statusValue}
-              onChange={(e) => setStatusValue(e.target.value)}
+              value={formData.status}
+              onChange={(e) =>
+                setFormData({ ...formData, status: e.target.value })
+              }
               fullWidth
             >
               {statusOptions.map((option) => (
@@ -211,30 +304,118 @@ export const Projects = () => {
                 </MenuItem>
               ))}
             </TextField>
+
             <TextField
-              label="Project Notes"
-              value={notes}
-              fullWidth
+              label="Description"
               multiline
-              minRows={4}
-              onChange={(e) => setNotes(e.target.value)}
-              helperText="Notes are for your reference only."
+              minRows={3}
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              fullWidth
             />
-            <Typography variant="body2" color="text.secondary">
-              Start: {selectedProject?.start_date ? new Date(selectedProject.start_date).toLocaleDateString() : "N/A"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              End: {selectedProject?.end_date ? new Date(selectedProject.end_date).toLocaleDateString() : "N/A"}
-            </Typography>
+
+            <TextField
+              label="Start Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={formData.start_date}
+              onChange={(e) =>
+                setFormData({ ...formData, start_date: e.target.value })
+              }
+              fullWidth
+            />
+
+            <TextField
+              label="End Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={formData.end_date}
+              onChange={(e) =>
+                setFormData({ ...formData, end_date: e.target.value })
+              }
+              fullWidth
+            />
+            <FormControl fullWidth>
+              <InputLabel>Client</InputLabel>
+              <Select
+                value={formData.client_id}
+                label="Client"
+                onChange={(e) =>
+                  setFormData({ ...formData, client_id: e.target.value })
+                }
+              >
+                {clients.map((client) => (
+                  <MenuItem key={client.id} value={client.id}>
+                    {client.company}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {/* <FormControl fullWidth>
+              <InputLabel>Assign Users</InputLabel>
+              <Select
+                multiple
+                value={formData.assignments?.map((a) => a.user_id)}
+                label="Assign Users"
+                onChange={(e) => {
+                  const selectedIds = e.target.value;
+
+                  setFormData({
+                    ...formData,
+                    assignments: selectedIds.map((id) => ({
+                      user_id: id
+                    }))
+                  });
+                }}
+                renderValue={(selected) =>
+                  users
+                    .filter((u) => selected.includes(u.id))
+                    .map((u) => u.name)
+                    .join(", ")
+                }
+              >
+                {users.map((user) => (
+                  <MenuItem key={user.id} value={user.id}>
+                    {user.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl> */}
           </Stack>
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={() => setSelectedProject(null)}>Cancel</Button>
-          <Button variant="contained" color="secondary" onClick={handleSave} disabled={mutation.isLoading}>
-            {mutation.isLoading ? "Saving..." : "Save Status"}
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={handleSave}
+            disabled={createMutation.isLoading || updateMutation.isLoading}
+          >
+            {isEditMode
+              ? updateMutation.isLoading
+                ? "Updating..."
+                : "Update"
+              : createMutation.isLoading
+                ? "Creating..."
+                : "Create"}
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Fab
+        color="primary"
+        sx={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          display: { xs: "flex", md: "none" },
+        }}
+        onClick={() => handleOpenCreate()}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };

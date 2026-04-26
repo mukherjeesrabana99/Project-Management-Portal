@@ -90,6 +90,7 @@ const login = async (req, res) => {
   users.password,
   users.name,
   users.role_id,
+  users.client_id,
   roles.role_name
   FROM users
   JOIN roles ON users.role_id = roles.id
@@ -126,6 +127,7 @@ const login = async (req, res) => {
       name: user.name,
       role_id: user.role_id,
       role_name: user.role_name,
+      client_id: user.client_id,
     };
 
     const tokens = JWTService.generateTokenPair(userPayload);
@@ -141,6 +143,7 @@ const login = async (req, res) => {
         name: user.name,
         role_id: user.role_id,
         role: user.role_name,
+        client_id: user.client_id,
       },
       tokens,
     });

@@ -7,7 +7,7 @@ exports.createClient = async (req, res) => {
 };
 
 exports.getClients = async (req, res) => {
-  const data = await service.createClient(req.body, req.user.id);
+  const data = await service.getClients();
   res.json(data);
 };
 
