@@ -84,7 +84,16 @@ const login = async (req, res) => {
 
   winston.info(`Login attempt for email: ${email}`, { ip: req.ip });
 
-  const findUserQuery = "SELECT id, email, password FROM users WHERE email = ?";
+  const findUserQuery = `SELECT 
+  users.id,
+  users.email,
+  users.password,
+  users.name,
+  users.role_id,
+  roles.role_name
+  FROM users
+  JOIN roles ON users.role_id = roles.id
+  WHERE users.email = ?`;
   db_connection.execute(findUserQuery, [email], async (err, results) => {
     if (err) {
       winston.error("Database error during user lookup:", err.message);
@@ -116,6 +125,7 @@ const login = async (req, res) => {
       email: user.email,
       name: user.name,
       role_id: user.role_id,
+      role_name: user.role_name,
     };
 
     const tokens = JWTService.generateTokenPair(userPayload);
@@ -130,6 +140,7 @@ const login = async (req, res) => {
         email: user.email,
         name: user.name,
         role_id: user.role_id,
+        role: user.role_name,
       },
       tokens,
     });
