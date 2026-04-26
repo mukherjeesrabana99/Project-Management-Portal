@@ -1,5 +1,5 @@
 
-const db = require("../config/database/db_connection");
+const db = require("../../config/database/db_connection");
 
 exports.getAdminStats = async () => {
   const [users] = await db.promise().query(`SELECT COUNT(*) as totalUsers FROM users`);
@@ -24,7 +24,7 @@ exports.getUserGrowth = async () => {
 
 exports.getRecentActivity = async () => {
   return db.promise().query(`
-    SELECT action, entity, created_at
+    SELECT action, entity_type, entity_id, created_at
     FROM activity_logs
     ORDER BY created_at DESC
     LIMIT 10

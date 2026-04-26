@@ -20,7 +20,8 @@ const authenticateToken = async (req, res, next) => {
   try {
     const decoded = JWTService.verifyToken(token, "access");
     req.user = decoded;
-    winston.info(`User authenticated: ${decoded.id || decoded.email}`);
+    console.log("Decoded token in auth middleware", req.user);
+    winston.info(`User authenticated: ${decoded.id || decoded.email ||decoded.role_id}`);
     next();
   } catch (error) {
     winston.warn(`Token verification failed: ${error.message}`, {

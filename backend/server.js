@@ -9,6 +9,9 @@ const configureWinston = require("./config/logger/winston_config");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user/user.routes");
 const dashboardRoutes = require("./routes/dashboard/dashboard.routes");
+const clientRoutes = require("./routes/client/client.routes");
+const projectRoutes = require("./routes/project/project.routes");
+const activityRoutes = require("./routes/activity/activity.route");
 const { errorHandler } = require("./config/customerror");
 
 dotenv.config();
@@ -68,6 +71,9 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/client", clientRoutes);
+app.use("/api/project", projectRoutes);
+app.use("/api/activity", activityRoutes);
 
 app.use((req, res) => {
   winston.warn(`404 - Route not found: ${req.method} ${req.originalUrl}`, {
