@@ -98,7 +98,7 @@ Before running this project, make sure you have the following installed:
 
    # JWT Configuration
    JWT_SECRET=your_super_secret_jwt_key_here
-   JWT_EXPIRES_IN=24h
+   JWT_EXPIRES_IN=1d
 
    # Server Configuration
    PORT=5000
