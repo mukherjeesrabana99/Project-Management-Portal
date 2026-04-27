@@ -70,7 +70,7 @@ Before running this project, make sure you have the following installed:
 3. **Install frontend dependencies**
    ```bash
    cd ../frontend
-   npm install
+   npm install --legacy-peer-deps
    cd ..
    ```
 
