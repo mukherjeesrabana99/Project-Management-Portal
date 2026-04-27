@@ -6,6 +6,8 @@ const {
   refreshToken,
   logout,
   getProfile,
+  updateProfile,
+  changePassword,
 } = require("../auth/authentication");
 const {
   authenticateToken,
@@ -51,5 +53,7 @@ router.post(
 router.post("/logout", authenticateToken, logout);
 
 router.get("/profile", authenticateToken, getProfile);
+router.put("/profile", authenticateToken, updateProfile);
+router.put("/profile/password", authenticateToken, changePassword);
 
 module.exports = router;

@@ -31,7 +31,9 @@ exports.getActivityByUser = async (req, res) => {
 exports.getRecentActivity = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
-    const data = await service.getRecentActivity(limit);
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+    const data = await service.getRecentActivity(limit, startDate, endDate);
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });

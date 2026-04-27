@@ -11,4 +11,7 @@ router.post("/", authorize("Admin"), controller.createProject);
 router.put("/:id/status", authorize("Admin", "Client"), controller.updateStatus);
 router.get("/", authorize("Admin", "Client"), controller.getProjects);
 
+router.get("/client", authorize("Client"), controller.getClientProjects);
+router.get("/assigned", authorize("Admin", "Client", "User"), controller.getAssignedUserProjects);
+
 module.exports = router;

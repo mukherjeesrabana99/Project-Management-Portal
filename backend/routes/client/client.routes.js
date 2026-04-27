@@ -8,6 +8,9 @@ router.use(authenticateToken);
 
 router.post("/", authorize("Admin"), controller.createClient);
 
+router.get("/me", authorize("Client"), controller.getClientProfile);
+router.put("/me", authorize("Client"), controller.updateClientProfile);
+
 router.put("/:id", authorize("Admin"), controller.updateClient);
 router.delete("/:id", authorize("Admin"), controller.deleteClient);
 
