@@ -11,6 +11,16 @@ exports.getProjects = async (req, res) => {
   res.json(data);
 };
 
+exports.getClientProjects = async (req, res) => {
+  const data = await service.getClientProjects(req.user.id);
+  res.json(data);
+};
+
+exports.getAssignedUserProjects = async (req, res) => {
+  const data = await service.getAssignedUserProjects(req.user.id);
+  res.json(data);
+};
+
 exports.updateStatus = async (req, res) => {
   await service.updateProjectStatus(
     req.params.id,

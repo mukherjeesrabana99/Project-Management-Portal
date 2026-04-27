@@ -30,9 +30,13 @@ export const getActivityByUser = async () => {
   }
 };
 
-export const getRecentActivity = async (limit = 10) => {
+export const getRecentActivity = async ({ limit = 10, startDate, endDate } = {}) => {
   try {
-    const response = await api.get(`/api/activity/recent?limit=${limit}`);
+    const query = new URLSearchParams();
+    if (limit) query.append("limit", limit);
+    if (startDate) query.append("startDate", startDate);
+    if (endDate) query.append("endDate", endDate);
+    const response = await api.get(`/api/activity/recent?${query.toString()}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching recent activity:", error);

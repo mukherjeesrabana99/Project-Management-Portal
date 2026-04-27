@@ -32,8 +32,8 @@ exports.getActivityByUser = async () => {
   }));
 };
 
-exports.getRecentActivity = async (limit = 10) => {
-  const [rows] = await repo.getRecentActivity(limit);
+exports.getRecentActivity = async (limit = 10, startDate, endDate) => {
+  const [rows] = await repo.getRecentActivity(limit, startDate, endDate);
   return rows.map(row => ({
     id: row.id,
     userId: row.user_id,

@@ -14,6 +14,11 @@ exports.getClients = async () => {
   return clients;
 };
 
+exports.getClientById = async (id) => {
+  const [clients] = await repo.getClientById(id);
+  return clients[0] || null;
+};
+
 exports.updateClient = async (id, data, updatedBy) => {
   await repo.updateClient(id, data);
   // Log activity

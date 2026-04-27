@@ -2,9 +2,9 @@
 const repo = require("../../repository/project/project.repository");
 const activityRepo = require("../../repository/activity/activity.repository");
 
-// Simple in-memory cache
+
 const cache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds 
+const CACHE_DURATION = 5 * 60 * 1000; 
 
 exports.createProject = async (data, userId) => {
   const [result] = await repo.createProject({
@@ -16,10 +16,10 @@ exports.createProject = async (data, userId) => {
     await repo.assignUsers(result.insertId, data.assignments);
   }
 
-  // Log activity
+
   await activityRepo.logActivity(userId, 'created project', 'project', result.insertId);
 
-  // Invalidate cache when a new project is created
+
   cache.delete('projects');
 
   return result;
@@ -55,6 +55,16 @@ exports.getProjects = async (user) => {
   parseAssignedUsers(projects);
   cache.set("projects", { data: projects, timestamp: now });
 
+  return projects;
+};
+
+exports.getClientProjects = async (user_id) => {
+  const [projects] = await repo.getClientProjects(user_id);
+  return projects;
+};
+
+exports.getAssignedUserProjects = async (user_id) => {
+  const [projects] = await repo.getAssignedUserProject(user_id);
   return projects;
 };
 

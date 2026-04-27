@@ -25,13 +25,36 @@ exports.assignUsers = (projectId, users) => {
   );
 };
 
-exports.getProjects = () => {
+exports.getClientProjects = (user_id) => {
+  return db.promise().query(`
+    SELECT p.*, c.company_name, u.name as client_name
+    FROM projects p
+    JOIN clients c ON p.client_id = c.id
+    JOIN users u ON c.id = u.client_id
+    WHERE u.id = ?
+  `, [user_id]);
+};
+
+exports.getAssignedUserProject= (user_id) => {
+  return db.promise().query(`
+    SELECT p.*, c.company_name, u.name as client_name, u2.name as assigned_user_name
+    FROM projects p
+    JOIN clients c ON p.client_id = c.id
+    JOIN users u ON c.id = u.client_id
+    JOIN project_users pu ON p.id = pu.project_id
+    JOIN users u2 ON pu.user_id = u2.id
+    WHERE u2.id = ?
+  `, [user_id]);
+};
+
+exports.getAllProjects = () => {
   return db.promise().query(`
     SELECT p.*, c.company_name as client_name
     FROM projects p
     JOIN clients c ON p.client_id = c.id
   `);
 };
+
 
 exports.getProjectById = (id) => {
   return db.promise().query(

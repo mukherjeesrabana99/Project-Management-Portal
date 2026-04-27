@@ -235,8 +235,74 @@ const getProfile = async (req, res) => {
         email: user.email,
         name: user.name,
         role_id: user.role_id,
+        client_id: user.client_id,
         createdAt: user.created_at,
       },
+    });
+  });
+};
+
+const updateProfile = async (req, res) => {
+  const userId = req.user.id;
+  const { name, email } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({ success: false, error: "Name and email are required." });
+  }
+
+  const updateQuery = `UPDATE users SET name=?, email=?, updated_at=? WHERE id=?`;
+  const params = [name.trim(), email.trim(), new Date(), userId];
+
+  db_connection.execute(updateQuery, params, (err) => {
+    if (err) {
+      winston.error("Database error during profile update:", err.message);
+      if (err.code === "ER_DUP_ENTRY") {
+        return res.status(400).json({ success: false, error: "Email is already in use." });
+      }
+      return res.status(500).json({ success: false, error: "Failed to update profile." });
+    }
+
+    winston.info(`User profile updated: ${userId}`);
+    res.json({ success: true, message: "Profile updated successfully." });
+  });
+};
+
+const changePassword = async (req, res) => {
+  const userId = req.user.id;
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ success: false, error: "Current and new passwords are required." });
+  }
+
+  const findUserQuery = `SELECT password FROM users WHERE id = ?`;
+  db_connection.execute(findUserQuery, [userId], async (err, results) => {
+    if (err) {
+      winston.error("Database error during password change:", err.message);
+      return res.status(500).json({ success: false, error: "Failed to change password." });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, error: "User not found." });
+    }
+
+    const hashedPassword = results[0].password;
+    const isMatch = await bcrypt.compare(currentPassword, hashedPassword);
+
+    if (!isMatch) {
+      return res.status(400).json({ success: false, error: "Current password is incorrect." });
+    }
+
+    const newHashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    const updateQuery = `UPDATE users SET password=?, updated_at=? WHERE id=?`;
+    db_connection.execute(updateQuery, [newHashedPassword, new Date(), userId], (updateErr) => {
+      if (updateErr) {
+        winston.error("Database error updating password:", updateErr.message);
+        return res.status(500).json({ success: false, error: "Failed to update password." });
+      }
+
+      winston.info(`Password changed for user: ${userId}`);
+      res.json({ success: true, message: "Password updated successfully." });
     });
   });
 };
@@ -247,4 +313,6 @@ module.exports = {
   refreshToken,
   logout,
   getProfile,
+  updateProfile,
+  changePassword,
 };

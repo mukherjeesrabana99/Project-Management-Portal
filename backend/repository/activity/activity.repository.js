@@ -50,14 +50,30 @@ exports.getActivityByUser = () => {
   `);
 };
 
-exports.getRecentActivity = (limit = 10) => {
+exports.getRecentActivity = (limit = 10, startDate, endDate) => {
+  const params = [];
+  let whereClause = "";
+
+  if (startDate) {
+    whereClause += "WHERE al.created_at >= ? ";
+    params.push(startDate);
+  }
+
+  if (endDate) {
+    whereClause += params.length === 0 ? "WHERE al.created_at <= ? " : "AND al.created_at <= ? ";
+    params.push(endDate);
+  }
+
+  params.push(limit);
+
   return db.promise().query(`
     SELECT 
       al.*,
       u.name as user_name
     FROM activity_logs al
     JOIN users u ON al.user_id = u.id
+    ${whereClause}
     ORDER BY al.created_at DESC
     LIMIT ?
-  `, [limit]);
+  `, params);
 };
