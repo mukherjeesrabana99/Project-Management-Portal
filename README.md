@@ -198,15 +198,14 @@ Password: User@123
 The application uses JWT tokens for authentication. Include the token in the Authorization header:
 
 ```
-Authorization: Bearer <your_jwt_token>
+Authorization: Bearer <accessToken>
 ```
 
 ## 👥 User Roles
 
 - **Admin**: Full access to all features
-- **Manager**: Can manage projects and view reports
-- **Team Member**: Can view and update assigned projects
 - **Client**: Limited access to view their projects
+- **User**: Limited access to view their dashboard
 
 ## 📊 Activity Logging
 
@@ -247,22 +246,6 @@ All write operations (create, update, delete) are automatically logged in the `a
 - **Client Management**: Manage all clients
 - **Projects**: View and manage all projects
 - **Activity**: Comprehensive activity logs
-
-## 🎯 Key Improvements & Fixes
-
-### Recent Updates (v1.1.0)
-- **Role-Based Access**: Fixed project visibility to ensure clients see only their projects and users see only assigned projects
-- **Profile Management**: Users and clients can now manage their profile information directly
-- **Admin Dashboard**: New settings and reports pages for administrators
-- **Query Performance**: Resolved SQL GROUP BY issue affecting the `/api/project/assigned` endpoint
-- **Frontend Framework**: Upgraded React Query to v5 with proper syntax (mutationFn, isPending, etc.)
-- **Security**: Enhanced password change functionality with secure validation
-
-### Fixed Issues
-- ✅ SQL `ONLY_FULL_GROUP_BY` error on assigned projects endpoint
-- ✅ React Query v5 `defaultMutationOptions` TypeError
-- ✅ Project visibility not respecting user roles
-- ✅ Client profile field mapping for form submissions
 
 ### Backend
 ```bash
