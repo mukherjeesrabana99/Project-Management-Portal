@@ -91,10 +91,10 @@ Before running this project, make sure you have the following installed:
    Create a `.env` file in the `backend` directory:
    ```env
    # Database Configuration
-   DB_HOST=localhost
-   DB_USER=your_mysql_username
-   DB_PASSWORD=your_mysql_password
-   DB_NAME=project_management_portal
+   DATABASE_HOST=localhost
+   DATABASE_USER=your_mysql_username
+   DATABASE_PASSWORD=your_mysql_password
+   DATABASE_NAME=project_management_portal
 
    # JWT Configuration
    JWT_SECRET=your_super_secret_jwt_key_here
@@ -102,10 +102,13 @@ Before running this project, make sure you have the following installed:
 
    # Server Configuration
    PORT=5000
-   NODE_ENV=development
 
    # CORS Configuration (optional)
-   CORS_ORIGIN=http://localhost:3000
+   CORS_ORIGIN= ["http://localhost:5173", "http://localhost:3000"]
+   ```
+   Create a `.env` file in the `frontend` directory:
+   ```env
+   VITE_BACKEND_URL=http://localhost:5000
    ```
 
 ## 🚀 Running the Application
@@ -126,19 +129,30 @@ Before running this project, make sure you have the following installed:
    ```
    The frontend will run on `http://localhost:5173`
 
-### Production Mode
+## 🔐 Test Credentials
 
-1. **Build the frontend**
-   ```bash
-   cd frontend
-   npm run build
-   ```
+Use the following test credentials to explore the application with different user roles:
 
-2. **Start the backend in production**
-   ```bash
-   cd backend
-   npm start
-   ```
+### Admin Account
+```
+Email: AdminOne@gmail.com
+Password: Admin@123
+```
+**Access**: Full system access including user management, reports, settings, and all admin features.
+
+### Client Account
+```
+Email: ClientOne@gmail.com
+Password: Client@123
+```
+**Access**: Limited to client-specific features including profile management and own projects.
+
+### User/Team Member Account
+```
+Email: UserOne@gmail.com
+Password: User@123
+```
+**Access**: Can view assigned projects, manage personal profile, and track activities.
 
 ## 📚 API Documentation
 
@@ -203,18 +217,6 @@ All write operations (create, update, delete) are automatically logged in the `a
 - Entity ID
 - Timestamp
 
-## 🧪 Testing
-
-```bash
-# Backend tests
-cd backend
-npm test
-
-# Frontend tests
-cd frontend
-npm test
-```
-
 ## 📄 Frontend Pages & Views
 
 ### User Views
@@ -265,7 +267,6 @@ npm test
 ### Backend
 ```bash
 cd backend
-npm run build  # If using TypeScript
 npm start
 ```
 
@@ -273,48 +274,5 @@ npm start
 ```bash
 cd frontend
 npm run build
-# Serve the dist folder with a static server
+
 ```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/your-repo/issues) page
-2. Create a new issue with detailed information
-3. Contact the development team
-
-## 🔄 Version History
-
-- **v1.1.0** - Profile Management & Admin Features Update
-  - Added user and client profile management pages
-  - Implemented personal profile editing (name, email)
-  - Added client company details management
-  - Created admin Settings page with password change and system configuration
-  - Built admin Reports page with date filtering and CSV export
-  - Fixed role-based project visibility (clients see own projects, users see assigned)
-  - Resolved SQL GROUP BY issue on assigned projects endpoint
-  - Upgraded to React Query v5 with proper API syntax
-  - Added backend endpoints for profile updates and password changes
-
-- **v1.0.0** - Initial release with core project management features
-  - User authentication and authorization
-  - Project and client management
-  - Activity logging and analytics
-  - Responsive dashboard
-
----
-
-**Happy coding! 🎉**
